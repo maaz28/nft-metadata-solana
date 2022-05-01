@@ -1,26 +1,16 @@
-import theblockchainapi from 'theblockchainapi';
+import { Connection, PublicKey } from "@solana/web3.js";
+import { Metadata } from "@metaplex-foundation/mpl-token-metadata"; 
 
-let defaultClient = theblockchainapi.ApiClient.instance;
+// tokenmeta is a PDA a which derived by mint address
+// the formula is ['metadata', metadata_program_id, mint_id]
+// is it totally fine to forget it because sdk already wrapped it for us
 
-// Get a free API Key Pair here: https://dashboard.blockchainapi.com/api-keys
+const connection = new Connection("https://api.mainnet-beta.solana.com");
 
-let APIKeyID = defaultClient.authentications['APIKeyID'];
-APIKeyID.apiKey = 'dXn1n1RFWnsTjCJ';
+(async () => {
+  let mintPubkey = new PublicKey("EPr4X3pqEMT7Eeu8YH9bt7uTD2PQ96rDP6NGU5PVoXaD");
+  let tokenmetaPubkey = await Metadata.getPDA(mintPubkey);
 
-let APISecretKey = defaultClient.authentications['APISecretKey'];
-APISecretKey.apiKey = 'hrOccTe0UY4bZZ4';
-
-let apiInstance = new theblockchainapi.SolanaNFTApi();
-
-let network = 'mainnet-beta'; // String | The network ID (devnet, mainnet-beta)
-let mintAddress = "EPr4X3pqEMT7Eeu8YH9bt7uTD2PQ96rDP6NGU5PVoXaD"; // String | The mint address of the NFT
-
-const result = await apiInstance.solanaGetNFT(network, mintAddress).then((data) => {
-  console.log('API called successfully.');
-  return data;
-}, (error) => {
-  console.error(error);
-  return null;
-});
-
-console.log(result);
+  const tokenmeta = await Metadata.load(connection, tokenmetaPubkey);
+  console.log(tokenmeta);
+})();
